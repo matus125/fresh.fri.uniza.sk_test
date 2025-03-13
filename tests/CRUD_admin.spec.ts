@@ -19,7 +19,7 @@ async function deleteExistingEntry(page, title) {
   await page.getByRole('searchbox').click();
   await page.getByRole('searchbox').fill(title);
   await page.getByRole('button', { name: 'search' }).nth(2).click();
-  const exists = await page.locator(`text=${title}`).isVisible();
+  const exists = await page.locator(`text=${title}`).first().isVisible();
   if (exists) {
     await page.getByRole('button', { name: 'delete' }).click();
     await page.getByRole('button', { name: 'Áno' }).click();
@@ -33,7 +33,7 @@ test.describe('Sériové testovanie', () => {
     const title = 'test1';
     let success = false;
     attempts = 0;
-    while (!success && attempts < 2) { // Max 2 pokusy
+    while (!success && attempts < 2) { 
       try {
         attempts++;
         await deleteExistingEntry(page, title);
@@ -76,7 +76,7 @@ test.describe('Sériové testovanie', () => {
     let success = false;
     attempts = 0;
 
-    while (!success && attempts < 2) { // Max 2 pokusy
+    while (!success && attempts < 2) {
       try {
         attempts++;
         await page.getByRole('button', { name: 'plus' }).click();
@@ -215,7 +215,7 @@ test.describe('Sériové testovanie', () => {
         await page.waitForLoadState('networkidle');
         success = true; 
       } catch (error) {
-        console.error(`❌ Test zlyhal na pokus č. ${attempts}: ${error.message}`);
+        console.error(`Test zlyhal na pokus č. ${attempts}: ${error.message}`);
       }
     }
   });
@@ -263,7 +263,7 @@ test.describe('Sériové testovanie', () => {
     }
   });
 
-  test('zmenaText', async ({ page }) => {
+  test('zmena_Text_obrazok_subor', async ({ page }) => {
     let success = false;
     attempts = 0;
 
@@ -277,7 +277,16 @@ test.describe('Sériové testovanie', () => {
         await page.getByRole('button', { name: 'edit' }).click();
         await page.waitForSelector('iframe[title="Rich Text Area"]');
         const iframe = page.frameLocator('iframe[title="Rich Text Area"]').nth(0); 
-        await iframe.locator('body').fill('upraveny text');
+        await iframe.locator('body').fill('upraveny text ');
+        await page.getByLabel('Pridať súbor').first().click();
+        const handle = page.locator('input[type="file"]');
+        await handle.setInputFiles("C:/Users/PC/Desktop/TestPlayWrite/files/Nová položka Textový dokument.txt");
+        await page.getByRole('button', { name: 'Nahrať' }).click();
+        await page.getByLabel('Pridať obrázok').first().click();
+        await page.getByRole('tab', { name: 'Upload' }).click();
+        await page.getByRole('tab', { name: 'General' }).click();
+        await page.getByLabel('Source', { exact: true }).fill('https://fresh.fri.uniza.sk/storage/upload/news/1741906236-neviem.png');
+        await page.getByLabel('Save').click();
         await page.getByRole('button', { name: 'Uložiť' }).click();
         const locator = page.locator('div.ant-notification-notice-message:has-text("Úspešne uložené")');
         await expect(locator).toHaveText('Úspešne uložené');
@@ -285,10 +294,16 @@ test.describe('Sériové testovanie', () => {
         await page.getByRole('link', { name: 'Logo Fri Portál FRI' }).click();
         await page.getByText('test1').click();
         const locator2 = page.getByText('upraveny text');
-        await expect(locator2).toHaveText('upraveny text');
+        await expect(locator2).toHaveText('upraveny text Nová položka Textový dokument ');
         await page.waitForLoadState('networkidle');
+        const imageLocator = page.locator('img[src*="1741906236-neviem.png"]'); 
+        await expect(imageLocator).toBeVisible();
+        await page.waitForLoadState('networkidle');
+        success = true;
       } catch (error) {
         console.error(`Test zlyhal na pokus č. ${attempts}`);
+        await page.goto('https://fresh.fri.uniza.sk/cms/news');
+        
         if (attempts >= 2) {
            throw error;
         }
@@ -297,9 +312,10 @@ test.describe('Sériové testovanie', () => {
   });
 
 
+
   test('mazanie', async ({ page }) => {
     let success = false;
-    let attempts = 0;
+    attempts = 0;
 
     while (!success && attempts < 2) {
       try {
@@ -339,7 +355,7 @@ test.describe('Sériové testovanie', () => {
         await page.waitForLoadState('networkidle');
         await page.getByLabel('Názov EN').getByRole('button', { name: 'search' }).click();
         await page.getByRole('button', { name: 'close-circle' }).click();
-        success = true; // ✅ Test prešiel, netreba opakovať
+        success = true; 
       } catch (error) {
         console.error(`❌ Test zlyhal na pokus č. ${attempts}: ${error.message}`);
       }
