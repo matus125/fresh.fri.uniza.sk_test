@@ -17,6 +17,8 @@ test.beforeEach(async ({ page }) => {
   await page.getByRole('button', { name: 'Obsah' }).click();
   await page.getByRole('link', { name: 'Aktuality' }).click();
   await page.waitForLoadState('networkidle');
+  
+  await page.waitForLoadState('networkidle');
 });
 
 test.describe('Sériové testovanie', () => {
