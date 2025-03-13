@@ -32,7 +32,7 @@ export default defineConfig({
     trace: 'on-first-retry',
     storageState: 'playwright/.auth/auth.json',
     baseURL: 'https://fresh.fri.uniza.sk/cms',
-    headless: false,
+    headless: true,
   },
 
 
