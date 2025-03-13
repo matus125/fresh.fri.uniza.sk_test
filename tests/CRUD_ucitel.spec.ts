@@ -3,12 +3,8 @@ test.use({ storageState: 'playwright/.auth/auth.json' });
 test.slow();
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('https://fresh.fri.uniza.sk/cms');
+  await page.goto('https://fresh.fri.uniza.sk/cms/login-as-user');
   await page.waitForLoadState('networkidle');
-  await page.getByRole('button', { name: 'Obsah' }).click();
-  await page.getByRole('link', { name: 'Aktuality' }).click();
-  await page.locator('div').filter({ hasText: /^PPatrik Hrkút$/ }).getByRole('button').click();
-  await page.getByText('Prihlásiť sa ako iný použí').click();
   await page.getByText('doc. Ing. Patrik Hrkút , PhD.').click();
   await page.getByLabel('Vybrať používateľa').fill('Ing. Štefan Toth , PhD.');
   await page.getByText('Ing. Štefan Toth , PhD.').click();
@@ -16,8 +12,6 @@ test.beforeEach(async ({ page }) => {
   await page.waitForLoadState('networkidle');
   await page.getByRole('button', { name: 'Obsah' }).click();
   await page.getByRole('link', { name: 'Aktuality' }).click();
-  await page.waitForLoadState('networkidle');
-  
   await page.waitForLoadState('networkidle');
 });
 
@@ -51,6 +45,21 @@ test.describe('Sériové testovanie', () => {
     await expect(infoLocator).toHaveText(/Štefan Toth/);
     await page.waitForLoadState('networkidle');
   });
+
+  test('vyhladanie_pod_inym_pouzivatelom', async ({ page }) => {
+    await page.getByRole('button', { name: 'more' }).click();
+    await page.getByText('Späť k Patrik Hrkút').click();
+    await page.waitForLoadState('networkidle');
+    await page.getByRole('link', { name: 'Aktuality' }).click();
+    await page.waitForLoadState('networkidle');
+    await page.getByLabel('Názov SK').getByRole('button', { name: 'search' }).click();
+    await page.getByRole('searchbox').click();
+    await page.getByRole('searchbox').fill('test4');
+    await page.getByRole('button', { name: 'search' }).nth(2).click();
+    await expect(page.locator('text=test4')).toHaveCount(1);
+    await page.waitForLoadState('networkidle');
+  });
+
 
   test('vytvorenie_SK_znova', async ({ page }) => {
     await page.getByRole('button', { name: 'plus' }).click()

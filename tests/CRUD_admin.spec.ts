@@ -64,6 +64,24 @@ test.describe('Sériové testovanie', () => {
     await page.waitForLoadState('networkidle');
   });
 
+  test('vyhladanie_pod_inym_pouzivatelom', async ({ page }) => {
+    await page.goto('https://fresh.fri.uniza.sk/cms/login-as-user');
+    await page.waitForLoadState('networkidle');
+    await page.getByText('doc. Ing. Patrik Hrkút , PhD.').click();
+    await page.getByLabel('Vybrať používateľa').fill('Ing. Štefan Toth , PhD.');
+    await page.getByText('Ing. Štefan Toth , PhD.').click();
+    await page.getByRole('button', { name: 'Prihlásiť' }).click();
+    await page.waitForLoadState('networkidle');
+    await page.getByRole('link', { name: 'Aktuality' }).click();
+    await page.waitForLoadState('networkidle');
+    await page.getByLabel('Názov SK').getByRole('button', { name: 'search' }).click();
+    await page.getByRole('searchbox').click();
+    await page.getByRole('searchbox').fill('test1');
+    await page.getByRole('button', { name: 'search' }).nth(2).click();
+    await expect(page.locator('text=test1')).toHaveCount(0);
+    await page.waitForLoadState('networkidle');
+  });
+
   test('vytvorenie_EN', async ({ page }) => {
     test.setTimeout(1200000);
     await page.getByRole('button', { name: 'plus' }).click()
@@ -96,8 +114,6 @@ test.describe('Sériové testovanie', () => {
   });
 
   test('vytvorenie_SK/EN', async ({ page }) => {
-    test.slow();
-
     await page.getByRole('button', { name: 'plus' }).click()
     await page.locator('#title_sk').click();
     await page.locator('#title_sk').fill('test3');

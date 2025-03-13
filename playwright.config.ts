@@ -14,7 +14,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests',
   /* Run tests in files in parallel */
-  fullyParallel: false,
+  fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
@@ -32,7 +32,7 @@ export default defineConfig({
     trace: 'on-first-retry',
     storageState: 'playwright/.auth/auth.json',
     baseURL: 'https://fresh.fri.uniza.sk/cms',
-    headless: true,
+    headless: false,
   },
 
 
