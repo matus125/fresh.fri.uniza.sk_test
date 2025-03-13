@@ -60,7 +60,6 @@ test.describe('Sériové testovanie', () => {
     await page.waitForLoadState('networkidle');
   });
 
-
   test('vytvorenie_SK_znova', async ({ page }) => {
     await page.getByRole('button', { name: 'plus' }).click()
     await page.getByRole('button', { name: 'Uložiť' }).click();
