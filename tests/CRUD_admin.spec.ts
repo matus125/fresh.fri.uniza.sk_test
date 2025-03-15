@@ -282,11 +282,12 @@ test.describe('Sériové testovanie', () => {
         const handle = page.locator('input[type="file"]');
         await handle.setInputFiles("C:/Users/PC/Desktop/TestPlayWrite/files/Nová položka Textový dokument.txt");
         await page.getByRole('button', { name: 'Nahrať' }).click();
+        
         await page.getByLabel('Pridať obrázok').first().click();
-        await page.getByRole('tab', { name: 'Upload' }).click();
-        await page.getByRole('tab', { name: 'General' }).click();
-        await page.getByLabel('Source', { exact: true }).fill('https://fresh.fri.uniza.sk/storage/upload/news/1741906236-neviem.png');
-        await page.getByLabel('Save').click();
+        const handle1 = page.locator('input[type="file"]');
+        await handle1.setInputFiles("https://fresh.fri.uniza.sk/storage/upload/news/1742075329-neviem.png");
+        await page.getByRole('button', { name: 'Save' }).click();
+
         await page.getByRole('button', { name: 'Uložiť' }).click();
         const locator = page.locator('div.ant-notification-notice-message:has-text("Úspešne uložené")');
         await expect(locator).toHaveText('Úspešne uložené');
@@ -296,7 +297,7 @@ test.describe('Sériové testovanie', () => {
         const locator2 = page.getByText('upraveny text');
         await expect(locator2).toHaveText('upraveny text Nová položka Textový dokument ');
         await page.waitForLoadState('networkidle');
-        const imageLocator = page.locator('img[src*="1741906236-neviem.png"]'); 
+        const imageLocator = page.locator('img[src*="1742075329-neviem.png"]'); 
         await expect(imageLocator).toBeVisible();
         await page.waitForLoadState('networkidle');
         success = true;
