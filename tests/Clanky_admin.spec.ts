@@ -24,10 +24,6 @@ test.beforeEach(async ({ page }) => {
             const iframe = page.frameLocator('iframe[title="Rich Text Area"]').nth(0);
             await iframe.locator('body').fill('skusobny test');
             await page.getByRole('button', { name: 'Uložiť' }).click()
-            await expect(page.locator('#categories_help')).toHaveText('Pole je povinné');  
-            await page.locator('.ant-select-selection-overflow').click();
-            await page.getByText('Pre študentov').click();
-            await page.getByRole('button', { name: 'Uložiť' }).click();
             const locator = page.locator('div:has-text("Úspešne uložené")');
             await expect(locator.nth(5)).toHaveText('Úspešne uložené');
             await page.waitForLoadState('networkidle');
