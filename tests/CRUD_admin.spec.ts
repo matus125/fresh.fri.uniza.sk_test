@@ -312,8 +312,6 @@ test.describe('Sériové testovanie', () => {
     }
   });
 
-
-
   test('mazanie', async ({ page }) => {
     let success = false;
     attempts = 0;
@@ -358,7 +356,7 @@ test.describe('Sériové testovanie', () => {
         await page.getByRole('button', { name: 'close-circle' }).click();
         success = true; 
       } catch (error) {
-        console.error(`❌ Test zlyhal na pokus č. ${attempts}: ${error.message}`);
+        console.error(`Test zlyhal na pokus č. ${attempts}: ${error.message}`);
       }
     }
   });
