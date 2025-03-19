@@ -28,6 +28,25 @@ async function deleteExistingEntry(page, title) {
   }
 }
 
+async function deleteExistingEntryEN(page, title) {
+  await page.getByRole('button', { name: 'Obsah' }).click();
+  await page.getByRole('link', { name: 'Aktuality' }).click();
+  await page.getByLabel('Názov EN').getByRole('button', { name: 'search' }).click();
+  await page.getByRole('searchbox').click();
+  await page.getByRole('searchbox').fill(title);
+  await page.getByRole('button', { name: 'search' }).nth(3).click();
+  const exists = await page.locator(`text=${title}`).first().isVisible();
+  if (exists) {
+    await page.getByRole('button', { name: 'delete' }).click();
+    await page.getByRole('button', { name: 'Áno' }).click();
+    const locator2 = page.locator('div.ant-notification-notice-message:has-text("Položka úspešne vymazaná")');
+    await expect(locator2).toHaveText('Položka úspešne vymazaná');
+    await page.getByLabel('Názov EN').getByRole('button', { name: 'search' }).click();
+    await page.getByRole('button', { name: 'close-circle' }).click();
+    
+  }
+}
+
 test.describe('Sériové testovanie', () => {
   test('vytvorenie_SK', async ({ page }) => {
     const title = 'test1';
@@ -185,7 +204,7 @@ test.describe('Sériové testovanie', () => {
    while (!success && attempts < 2) { 
       try {
         attempts++;
-        await deleteExistingEntry(page, title);
+        await deleteExistingEntryEN(page, title);
         await page.getByRole('button', { name: 'plus' }).click();
         await page.getByRole('button', { name: 'Uložiť' }).click();
         const locator1 = page.locator('div:has-text("Musíte vyplniť aspoň jednu jazykovú verziu.")');

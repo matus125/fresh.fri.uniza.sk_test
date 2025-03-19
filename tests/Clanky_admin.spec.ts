@@ -235,4 +235,85 @@ test('vytvorenieClanku_SK_znova', async ({ page }) => {
           }
         }
       });
+
+      test('zmena_Text_obrazok_subor', async ({ page }) => {
+          let success = false;
+          attempts = 0;
+      
+          while (!success && attempts < 2) { 
+            try {
+              attempts++;
+              await page.getByLabel('Názov SK').getByRole('button', { name: 'search' }).click();
+              await page.getByRole('searchbox').click();
+              await page.getByRole('searchbox').fill('clanok1');
+              await page.getByRole('button', { name: 'search' }).nth(3).click();
+              await page.getByRole('button', { name: 'edit' }).click();
+              await page.waitForSelector('iframe[title="Rich Text Area"]');
+              const iframe = page.frameLocator('iframe[title="Rich Text Area"]').nth(0); 
+              await iframe.locator('body').fill('upraveny text ');
+              await page.getByLabel('Pridať súbor').first().click();
+              const handle = page.locator('input[type="file"]');
+              await handle.setInputFiles("C:/Users/PC/Desktop/TestPlayWrite/files/Nová položka Textový dokument.txt");
+              await page.getByRole('button', { name: 'Nahrať' }).click();
+              await page.getByRole('button', { name: 'Uložiť' }).click();
+              const locator = page.locator('div.ant-notification-notice-message:has-text("Úspešne uložené")');
+              await expect(locator).toHaveText('Úspešne uložené');
+              await page.waitForLoadState('networkidle');
+              await page.getByRole('button', { name: 'eye' }).click();
+              const page1Promise = page.waitForEvent('popup');
+              await page.getByRole('link', { name: 'Nová položka Textový' }).click();
+              const page1 = await page1Promise;
+              await expect(page1.getByText('nefunguje nahlad pri clankoch')).toBeVisible();
+              await page1.close();
+              await page.waitForLoadState('networkidle');
+
+              await page.goto('https://fresh.fri.uniza.sk/cms/articles');
+              //await page.locator('svg[data-icon="close"]').nth(1).click();
+
+              await page.getByLabel('Názov SK').getByRole('button', { name: 'search' }).click();
+              await page.getByRole('button', { name: 'close-circle' }).click();
+              success = true;
+            } catch (error) {
+              console.error(`Test zlyhal na pokus č. ${attempts}, ${error}`);
+              await page.goto('https://fresh.fri.uniza.sk/cms/articles');
+              if (attempts >= 2) {
+                 throw error;
+              }
+            }
+          }
+        });
+
+        test('vyhladanie_pod_inym_pouzivatelom', async ({ page }) => {
+            let success = false;
+            attempts = 0;
+        
+            while (!success && attempts < 2) { 
+              try {
+                attempts++;
+                await page.goto('https://fresh.fri.uniza.sk/cms/login-as-user');
+                await page.waitForLoadState('networkidle');
+                await page.getByText('doc. Ing. Patrik Hrkút , PhD.').click();
+                await page.getByLabel('Vybrať používateľa').fill('Ing. Štefan Toth , PhD.');
+                await page.getByText('Ing. Štefan Toth , PhD.').click();
+                await page.getByRole('button', { name: 'Prihlásiť' }).click();
+                await page.waitForLoadState('networkidle');
+                await page.waitForTimeout(1000);
+                await page.getByRole('link', { name: 'Články' }).click();
+                await page.waitForLoadState('networkidle');
+                await page.getByLabel('Názov SK').getByRole('button', { name: 'search' }).click();
+                await page.getByRole('searchbox').click();
+                await page.getByRole('searchbox').fill('clanok1');
+                await page.getByRole('button', { name: 'search' }).nth(3).click();
+                await expect(page.locator('text=test11')).toHaveCount(0);
+                await page.waitForLoadState('networkidle');
+                success = true;
+              } catch (error) {
+                console.error(`Test zlyhal na pokus č. ${attempts}`);
+                await page.getByRole('link', { name: 'Články' }).click();
+                if (attempts >= 2) {
+                  throw error; 
+                 }
+              }
+            }
+          });
   
