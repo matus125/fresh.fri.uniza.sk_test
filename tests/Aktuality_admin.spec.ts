@@ -164,7 +164,6 @@ test.describe('Sériové testovanie', () => {
     }
   });
 
-
 //nefunguje 
   test('pamatanie_filtra', async ({ page }) => {
     let success = false;
@@ -190,7 +189,8 @@ test.describe('Sériové testovanie', () => {
         const searchValue = await page.locator('input.ant-input').inputValue();
         let ulozenaHodnota = searchValue === '' ? 'prázdne' : searchValue;
         await page.waitForLoadState('networkidle');
-        expect(ulozenaHodnota).toBe('');
+        console.log(ulozenaHodnota);
+        expect(ulozenaHodnota).toBe('prázdne');
         success = true; 
       } catch (error) {
         console.error(`Test zlyhal na pokus č. ${attempts}`);
@@ -284,7 +284,38 @@ test.describe('Sériové testovanie', () => {
     }
   });
 
-
+  test('top', async ({ page }) => {
+    for (let attempts = 1; attempts <= 2; attempts++) {
+      try {
+        await page.goto('https://fresh.fri.uniza.sk');
+        await page.getByRole('button', { name: 'filter' }).click();
+        await page.getByLabel('Pre študentov').check();
+        const firstBefore = await page.locator('.second-title').first().textContent();
+        if (firstBefore?.trim() !== 'test3') throw new Error('Prvý článok nie je test3');
+        await page.goto('https://fresh.fri.uniza.sk/cms');
+        await page.waitForLoadState('networkidle');
+        await page.getByRole('button', { name: 'Obsah' }).click();
+        await page.getByRole('link', { name: 'Aktuality' }).click();
+        await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
+        await page.getByRole('searchbox').fill('test1');
+        await page.getByRole('button', { name: 'search' }).nth(2).click();
+        await page.getByRole('row', { name: 'test1' }).getByRole('button').first().click();
+        await page.getByLabel('Zobrazovať stále navrchu').click();
+        await page.getByRole('button', { name: 'Uložiť' }).click();
+        await page.getByRole('link', { name: 'Logo Fri Portál FRI' }).click();
+        await page.getByRole('button', { name: 'filter' }).click();
+        await page.getByLabel('Pre študentov').check();
+        const title = await page.locator('.second-title').first().textContent();
+        const ribbonVisible = await page.locator('.ant-ribbon').first().isVisible();
+        if (title?.trim() === 'test1' && ribbonVisible) return;
+        throw new Error('Podmienky neboli splnené');
+      } catch (error) {
+        console.error(`Pokus ${attempts} zlyhal: ${error.message}`);
+        if (attempts === 2) throw error;
+      }
+    }
+  });
+  
   test('topUntil', async ({ page }) => {
     let success = false;
     let attempts = 0;
@@ -297,7 +328,6 @@ test.describe('Sériové testovanie', () => {
         await page.getByRole('searchbox').fill('test1');
         await page.getByRole('button', { name: 'search' }).nth(2).click();
         await page.getByRole('row', { name: 'test1' }).getByRole('button').first().click();
-        await page.getByLabel('Zobrazovať stále navrchu').click();
         const zobrazitDo = await page.getByLabel('Zobrazovať navrchu do').inputValue();
         const zaciatok = await page.getByLabel('Začiatok platnosti').inputValue();
         const parseDate = (s: string) => {
@@ -309,7 +339,6 @@ test.describe('Sériové testovanie', () => {
         const rozdielSekund = Math.floor(
           (parseDate(zobrazitDo).getTime() - parseDate(zaciatok).getTime()) / 1000
         );
-        console.log(`Rozdiel v sekundách: ${rozdielSekund}`);
         if (rozdielSekund === 10080 * 60) {
           success = true;
         } else {
@@ -317,13 +346,12 @@ test.describe('Sériové testovanie', () => {
         }
       } catch (error) {
         console.error(`Test zlyhal na pokus č. ${attempts}: ${error.message}`);
+        await page.getByRole('link', { name: 'Aktuality' }).click();
         if (attempts >= 2) throw error;
       }
     }
   });
   
-
-
   test('zmena_Text_obrazok_subor', async ({ page }) => {
     let success = false;
     attempts = 0;
