@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 test.use({ storageState: 'playwright/.auth/auth.json' });
-test.slow();
+test.setTimeout(120000);
+
 let attempts= 0;
 
 test.beforeEach(async ({ page }) => {
@@ -14,7 +15,6 @@ test.beforeEach(async ({ page }) => {
 async function deleteExistingEntry(page, title) {
   await page.getByRole('button', { name: 'Obsah' }).click();
   await page.getByRole('link', { name: 'Aktuality' }).click();
-
   await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
   await page.getByRole('searchbox').click();
   await page.getByRole('searchbox').fill(title);
@@ -25,6 +25,8 @@ async function deleteExistingEntry(page, title) {
     await page.getByRole('button', { name: 'Áno' }).click();
     const locator2 = page.locator('div.ant-notification-notice-message:has-text("Položka úspešne vymazaná")');
     await expect(locator2).toHaveText('Položka úspešne vymazaná');
+    await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
+    await page.getByRole('button', { name: 'close-circle' }).click();
   }
 }
 
@@ -41,9 +43,8 @@ async function deleteExistingEntryEN(page, title) {
     await page.getByRole('button', { name: 'Áno' }).click();
     const locator2 = page.locator('div.ant-notification-notice-message:has-text("Položka úspešne vymazaná")');
     await expect(locator2).toHaveText('Položka úspešne vymazaná');
-    await page.getByLabel('Názov EN').getByRole('button', { name: 'search' }).click();
+    await page.getByLabel('Názov (anglicky)').getByRole('button', { name: 'search' }).click();
     await page.getByRole('button', { name: 'close-circle' }).click();
-    
   }
 }
 
@@ -60,7 +61,6 @@ test.describe('Sériové testovanie', () => {
         await page.getByRole('button', { name: 'Uložiť' }).click();
         const locator1 = page.locator('div:has-text("Musíte vyplniť aspoň jednu jazykovú verziu.")');
         await expect(locator1.nth(5)).toHaveText('Musíte vyplniť aspoň jednu jazykovú verziu.');
-        await page.locator('#title_sk').click();
         await page.locator('#title_sk').fill(title);
         await page.getByRole('button', { name: 'Uložiť' }).click();
         const locator2 = page.locator('div:has-text("Musíte vyplniť aspoň jednu jazykovú verziu.")');
@@ -94,7 +94,6 @@ test.describe('Sériové testovanie', () => {
   test('vytvorenie_SK_znova', async ({ page }) => {
     let success = false;
     attempts = 0;
-
     while (!success && attempts < 2) {
       try {
         attempts++;
@@ -130,7 +129,6 @@ test.describe('Sériové testovanie', () => {
     }
   });
 
-
   test('vyhladanie_pod_inym_pouzivatelom', async ({ page }) => {
     let success = false;
     attempts = 0;
@@ -151,8 +149,11 @@ test.describe('Sériové testovanie', () => {
         await page.getByRole('searchbox').click();
         await page.getByRole('searchbox').fill('test1');
         await page.getByRole('button', { name: 'search' }).nth(2).click();
-        await expect(page.locator('text=test11')).toHaveCount(0);
+        await page.reload();
+        await expect(page.locator('text=test1')).toHaveCount(0);
         await page.waitForLoadState('networkidle');
+        await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
+        await page.getByRole('button', { name: 'close-circle' }).click();
         success = true;
       } catch (error) {
         console.error(`Test zlyhal na pokus č. ${attempts}`);
@@ -164,8 +165,7 @@ test.describe('Sériové testovanie', () => {
     }
   });
 
-//nefunguje 
-  test('pamatanie_filtra', async ({ page }) => {
+  test('zmena_Text_obrazok_subor', async ({ page }) => {
     let success = false;
     attempts = 0;
 
@@ -174,6 +174,93 @@ test.describe('Sériové testovanie', () => {
         attempts++;
         await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
         await page.getByRole('searchbox').click();
+        await page.getByRole('searchbox').fill('test1');
+        await page.getByRole('button', { name: 'search' }).nth(2).click();
+        await page.getByRole('button', { name: 'edit' }).click();
+        await page.waitForSelector('iframe[title="Rich Text Area"]');
+        const iframe = page.frameLocator('iframe[title="Rich Text Area"]').nth(0); 
+        await iframe.locator('body').fill('upraveny text ');
+        await page.getByLabel('Pridať súbor').first().click();
+        const handle = page.locator('input[type="file"]');
+        await handle.setInputFiles("files/testovaci_subor.txt");
+        await page.getByRole('button', { name: 'Nahrať' }).click();
+        await page.getByLabel('Pridať obrázok').first().click();
+        const handle1 = page.locator('input[type="file"]').nth(0);
+        await handle1.setInputFiles("files/neviem.png");
+        await page.getByRole('button', { name: 'Save' }).click();
+        await page.getByRole('button', { name: 'Uložiť' }).click();
+        const locator = page.locator('div.ant-notification-notice-message:has-text("Úspešne uložené")');
+        await expect(locator).toHaveText('Úspešne uložené');
+        await page.waitForLoadState('networkidle');
+        await page.getByRole('link', { name: 'Logo Fri Portál FRI' }).click();
+        await page.getByText('test1').click();
+        const locator2 = page.getByText('upraveny text');
+        await expect(locator2).toHaveText('upraveny text testovaci_subor');
+        await page.waitForLoadState('networkidle');
+        const imageLocator = page.locator('img[src$="neviem.png"]').nth(0);
+        await expect(imageLocator).toBeVisible({ timeout: 5000 });
+        await page.waitForLoadState('networkidle');
+        success = true;
+      } catch (error) {
+        console.error(`Test zlyhal na pokus č. ${attempts}`);
+        await page.goto('https://fresh.fri.uniza.sk/cms/news');
+        if (attempts >= 2) {
+           throw error;
+        }
+      }
+    }
+  });
+
+  test('vytvorenie_SK/EN', async ({ page }) => {
+    const title = 'test3'; 
+    let success = false;
+    attempts = 0;
+
+    while (!success && attempts < 2) { 
+      try {
+        attempts++;
+        await deleteExistingEntry(page, title);
+        await page.getByRole('button', { name: 'plus' }).click();
+        await page.locator('#title_sk').fill(title);
+        const iframe1 = page.frameLocator('iframe[title="Rich Text Area"]').nth(0);
+        await iframe1.locator('body').fill('skusobny test');
+        await page.locator('#title_en').fill(title);
+        await page.waitForSelector('iframe[title="Rich Text Area"]');
+        const iframe = page.frameLocator('iframe[title="Rich Text Area"]').nth(1);
+        await iframe.locator('body').fill('skusobny test');
+        await page.locator('.ant-select-selection-overflow').click();
+        await page.getByText('Pre študentov').click();
+        await page.getByRole('button', { name: 'Uložiť' }).click();
+        const locator = page.locator('div:has-text("Úspešne uložené")');
+        await expect(locator.nth(5)).toHaveText('Úspešne uložené');
+        await page.waitForLoadState('networkidle');
+        await page.getByRole('link', { name: 'Logo Fri Portál FRI' }).click();
+        await page.waitForLoadState('networkidle');
+        await page.getByText(title).click();
+        const locator3 = page.getByRole('heading', { name: title });
+        await expect(locator3).toHaveText(title);
+        await page.getByRole('link', { name: 'Fakulta Riadenia a' }).nth(1).click();
+        await page.getByRole('button', { name: 'EN' }).nth(1).click();
+        await page.waitForLoadState('networkidle');
+        await page.getByText(title).click();
+        await expect(locator3).toHaveText(title);
+        await page.waitForLoadState('networkidle');
+        success = true; 
+      } catch (error) {
+        console.error(`Test zlyhal na pokus č. ${attempts}: ${error.message}`);
+      }
+    }
+  });
+
+  //nefunguje 
+  test('pamatanie_filtra', async ({ page }) => {
+    let success = false;
+    attempts = 0;
+
+    while (!success && attempts < 2) { 
+      try {
+        attempts++;
+        await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
         await page.getByRole('searchbox').fill('test2');
         await page.getByRole('button', { name: 'search' }).nth(2).click();
         await page.goto('https://fresh.fri.uniza.sk/cms/login-as-user');
@@ -211,7 +298,6 @@ test.describe('Sériové testovanie', () => {
         await page.getByRole('button', { name: 'Uložiť' }).click();
         const locator1 = page.locator('div:has-text("Musíte vyplniť aspoň jednu jazykovú verziu.")');
         await expect(locator1.nth(5)).toHaveText('Musíte vyplniť aspoň jednu jazykovú verziu.');
-        await page.locator('#title_en').click();
         await page.locator('#title_en').fill(title);
         await page.getByRole('button', { name: 'Uložiť' }).click();
         const locator2 = page.locator('div:has-text("Musíte vyplniť aspoň jednu jazykovú verziu.")');
@@ -232,49 +318,6 @@ test.describe('Sériové testovanie', () => {
         await page.waitForLoadState('networkidle');
         await page.getByText(title).click();
         const locator3 = page.getByRole('heading', { name: title });
-        await expect(locator3).toHaveText(title);
-        await page.waitForLoadState('networkidle');
-        success = true; 
-      } catch (error) {
-        console.error(`Test zlyhal na pokus č. ${attempts}: ${error.message}`);
-      }
-    }
-  });
-
-  test('vytvorenie_SK/EN', async ({ page }) => {
-    const title = 'test3'; 
-    let success = false;
-    attempts = 0;
-
-    while (!success && attempts < 2) { 
-      try {
-        attempts++;
-        await deleteExistingEntry(page, title);
-        await page.getByRole('button', { name: 'plus' }).click();
-        await page.locator('#title_sk').click();
-        await page.locator('#title_sk').fill(title);
-        const iframe1 = page.frameLocator('iframe[title="Rich Text Area"]').nth(0);
-        await iframe1.locator('body').fill('skusobny test');
-        await page.locator('#title_en').click();
-        await page.locator('#title_en').fill(title);
-        await page.waitForSelector('iframe[title="Rich Text Area"]');
-        const iframe = page.frameLocator('iframe[title="Rich Text Area"]').nth(1);
-        await iframe.locator('body').fill('skusobny test');
-        await page.locator('.ant-select-selection-overflow').click();
-        await page.getByText('Pre študentov').click();
-        await page.getByRole('button', { name: 'Uložiť' }).click();
-        const locator = page.locator('div:has-text("Úspešne uložené")');
-        await expect(locator.nth(5)).toHaveText('Úspešne uložené');
-        await page.waitForLoadState('networkidle');
-        await page.getByRole('link', { name: 'Logo Fri Portál FRI' }).click();
-        await page.waitForLoadState('networkidle');
-        await page.getByText(title).click();
-        const locator3 = page.getByRole('heading', { name: title });
-        await expect(locator3).toHaveText(title);
-        await page.getByRole('link', { name: 'Fakulta Riadenia a' }).nth(1).click();
-        await page.getByRole('button', { name: 'EN' }).nth(1).click();
-        await page.waitForLoadState('networkidle');
-        await page.getByText(title).click();
         await expect(locator3).toHaveText(title);
         await page.waitForLoadState('networkidle');
         success = true; 
@@ -316,7 +359,7 @@ test.describe('Sériové testovanie', () => {
     }
   });
   
-  test('topUntil', async ({ page }) => {
+  test('top_until', async ({ page }) => {
     let success = false;
     let attempts = 0;
   
@@ -324,7 +367,6 @@ test.describe('Sériové testovanie', () => {
       try {
         attempts++;
         await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
-        await page.getByRole('searchbox').click();
         await page.getByRole('searchbox').fill('test1');
         await page.getByRole('button', { name: 'search' }).nth(2).click();
         await page.getByRole('row', { name: 'test1' }).getByRole('button').first().click();
@@ -352,52 +394,6 @@ test.describe('Sériové testovanie', () => {
     }
   });
   
-  test('zmena_Text_obrazok_subor', async ({ page }) => {
-    let success = false;
-    attempts = 0;
-
-    while (!success && attempts < 2) { 
-      try {
-        attempts++;
-        await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
-        await page.getByRole('searchbox').click();
-        await page.getByRole('searchbox').fill('test1');
-        await page.getByRole('button', { name: 'search' }).nth(2).click();
-        await page.getByRole('button', { name: 'edit' }).click();
-        await page.waitForSelector('iframe[title="Rich Text Area"]');
-        const iframe = page.frameLocator('iframe[title="Rich Text Area"]').nth(0); 
-        await iframe.locator('body').fill('upraveny text ');
-        await page.getByLabel('Pridať súbor').first().click();
-        const handle = page.locator('input[type="file"]');
-        await handle.setInputFiles("C:/Users/PC/Desktop/TestPlayWrite/files/Nová položka Textový dokument.txt");
-        await page.getByRole('button', { name: 'Nahrať' }).click();
-        await page.getByLabel('Pridať obrázok').first().click();
-        const handle1 = page.locator('input[type="file"]').nth(0);
-        await handle1.setInputFiles("files/neviem.png");
-        await page.getByRole('button', { name: 'Save' }).click();
-        await page.getByRole('button', { name: 'Uložiť' }).click();
-        const locator = page.locator('div.ant-notification-notice-message:has-text("Úspešne uložené")');
-        await expect(locator).toHaveText('Úspešne uložené');
-        await page.waitForLoadState('networkidle');
-        await page.getByRole('link', { name: 'Logo Fri Portál FRI' }).click();
-        await page.getByText('test1').click();
-        const locator2 = page.getByText('upraveny text');
-        await expect(locator2).toHaveText('upraveny text Nová položka Textový dokument ');
-        await page.waitForLoadState('networkidle');
-        const imageLocator = page.locator('img[src$="neviem.png"]').nth(0);
-        await expect(imageLocator).toBeVisible({ timeout: 5000 });
-        await page.waitForLoadState('networkidle');
-        success = true;
-      } catch (error) {
-        console.error(`Test zlyhal na pokus č. ${attempts}`);
-        await page.goto('https://fresh.fri.uniza.sk/cms/news');
-        if (attempts >= 2) {
-           throw error;
-        }
-      }
-    }
-  });
-
   test('mazanie', async ({ page }) => {
     let success = false;
     attempts = 0;
@@ -417,7 +413,7 @@ test.describe('Sériové testovanie', () => {
         await page.waitForLoadState('networkidle');
         await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
         await page.getByRole('button', { name: 'close-circle' }).click();
-        await page.getByLabel('Názov (SK)').getByRole('button', { name: 'search' }).click();
+        await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
         await page.getByRole('searchbox').click();
         await page.getByRole('searchbox').fill('test3');
         await page.getByRole('button', { name: 'search' }).nth(2).click();    
@@ -445,5 +441,6 @@ test.describe('Sériové testovanie', () => {
         console.error(`Test zlyhal na pokus č. ${attempts}: ${error.message}`);
       }
     }
+    await page.close();
   });
 });

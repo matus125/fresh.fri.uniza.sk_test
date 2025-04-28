@@ -28,7 +28,7 @@ async function deleteExistingEntry(page, title) {
   await page.getByRole('button', { name: 'close-circle' }).click();
 }
 
-test('vytvorenie udalosti', async ({ page }) => {
+test('vytvorenie udalosti_SK', async ({ page }) => {
   const title = 'udalost1';
   const titleHelp = page.locator('#title_sk_help');
   const fromHelp = page.locator('#from_help');

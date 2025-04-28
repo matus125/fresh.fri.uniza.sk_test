@@ -12,7 +12,6 @@ test.beforeEach(async ({ page }) => {
 
 async function deleteExistingEntry(page, title) {
   await page.getByLabel('Popis').getByRole('button', { name: 'search' }).click();
-  await page.getByRole('searchbox').click();
   await page.getByRole('searchbox').fill(title);
   await page.getByRole('button', { name: 'search' }).nth(2).click();
   const exists = await page.locator(`text=${title}`).first().isVisible();

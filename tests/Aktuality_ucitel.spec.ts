@@ -20,7 +20,7 @@ async function deleteExistingEntry(page, title) {
   await page.getByRole('button', { name: 'Obsah' }).click();
   await page.getByRole('link', { name: 'Aktuality' }).click();
 
-  await page.getByLabel('Názov SK').getByRole('button', { name: 'search' }).click();
+  await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
   await page.getByRole('searchbox').click();
   await page.getByRole('searchbox').fill(title);
   await page.getByRole('button', { name: 'search' }).nth(2).click();
@@ -46,7 +46,6 @@ test('vytvorenie_SK', async ({ page }) => {
         await page.getByRole('button', { name: 'Uložiť' }).click();
         const locator1 = page.locator('div:has-text("Musíte vyplniť aspoň jednu jazykovú verziu.")');
         await expect(locator1.nth(5)).toHaveText('Musíte vyplniť aspoň jednu jazykovú verziu.');
-        await page.locator('#title_sk').click();
         await page.locator('#title_sk').fill(title);
         await page.getByRole('button', { name: 'Uložiť' }).click();
         const locator2 = page.locator('div:has-text("Musíte vyplniť aspoň jednu jazykovú verziu.")');
@@ -83,7 +82,7 @@ test('vytvorenie_SK', async ({ page }) => {
     await page.waitForLoadState('networkidle');
     await page.getByRole('link', { name: 'Aktuality' }).click();
     await page.waitForLoadState('networkidle');
-    await page.getByLabel('Názov SK').getByRole('button', { name: 'search' }).click();
+    await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
     await page.getByRole('searchbox').click();
     await page.getByRole('searchbox').fill('test4');
     await page.getByRole('button', { name: 'search' }).nth(2).click();
@@ -102,7 +101,6 @@ test('vytvorenie_SK_znova', async ({ page }) => {
         await page.getByRole('button', { name: 'Uložiť' }).click();
         const locator1 = page.locator('div:has-text("Musíte vyplniť aspoň jednu jazykovú verziu.")');
         await expect(locator1.nth(5)).toHaveText('Musíte vyplniť aspoň jednu jazykovú verziu.');
-        await page.locator('#title_sk').click();
         await page.locator('#title_sk').fill('test4');
         await page.getByRole('button', { name: 'Uložiť' }).click();
         const locator2 = page.locator('div:has-text("Musíte vyplniť aspoň jednu jazykovú verziu.")');
@@ -116,8 +114,8 @@ test('vytvorenie_SK_znova', async ({ page }) => {
         await page.getByText('Pre študentov').click();
         await page.getByRole('button', { name: 'Uložiť' }).click();
         await page.waitForSelector('div.ant-notification-notice-message', { state: 'visible' });
-        const locator = page.locator('div.ant-notification-notice-message').first().filter({hasText: '422 - Položka s rovnakým názvom už existuje. Musíte zadať iný názov.'});
-          await expect(locator).toHaveText('422 - Položka s rovnakým názvom už existuje. Musíte zadať iný názov.');
+        const locator = page.locator('div.ant-notification-notice-message').first().filter({hasText: 'Položka s rovnakým názvom už existuje. Musíte zadať iný názov.'});
+          await expect(locator).toHaveText('Položka s rovnakým názvom už existuje. Musíte zadať iný názov.');
         await page.waitForLoadState('networkidle');
         success = true;
       } catch (error) {
@@ -223,7 +221,7 @@ test('vytvorenie_SK_znova', async ({ page }) => {
     }
   });
 
-
+//dorobyt subor obrazok zmena_text_obrazok_subor
   test('zmenaText', async ({ page }) => {
     let success = false;
     attempts = 0;
