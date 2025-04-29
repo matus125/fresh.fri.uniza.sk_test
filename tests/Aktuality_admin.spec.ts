@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 test.use({ storageState: 'playwright/.auth/auth.json' });
-test.setTimeout(120000);
+
 
 let attempts= 0;
 
@@ -23,6 +23,7 @@ async function deleteExistingEntry(page, title) {
   if (exists) {
     await page.getByRole('button', { name: 'delete' }).click();
     await page.getByRole('button', { name: 'Áno' }).click();
+    await page.waitForTimeout(5000);
     const locator2 = page.locator('div.ant-notification-notice-message:has-text("Položka úspešne vymazaná")');
     await expect(locator2).toHaveText('Položka úspešne vymazaná');
     await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
@@ -41,6 +42,7 @@ async function deleteExistingEntryEN(page, title) {
   if (exists) {
     await page.getByRole('button', { name: 'delete' }).click();
     await page.getByRole('button', { name: 'Áno' }).click();
+    await page.waitForTimeout(5000);
     const locator2 = page.locator('div.ant-notification-notice-message:has-text("Položka úspešne vymazaná")');
     await expect(locator2).toHaveText('Položka úspešne vymazaná');
     await page.getByLabel('Názov (anglicky)').getByRole('button', { name: 'search' }).click();
@@ -73,8 +75,10 @@ test.describe('Sériové testovanie', () => {
         await page.locator('.ant-select-selection-overflow').click();
         await page.getByText('Pre študentov').click();
         await page.getByRole('button', { name: 'Uložiť' }).click();
+
         const locator = page.locator('div:has-text("Úspešne uložené")');
-        await expect(locator.nth(5)).toHaveText('Úspešne uložené');
+        await expect(locator.nth(5)).toHaveText('Úspešne uložené', { timeout: 10000 });
+        
         await page.waitForLoadState('networkidle');
         await page.getByRole('link', { name: 'Logo Fri Portál FRI' }).click();
         await page.getByText(title).click();
@@ -114,6 +118,7 @@ test.describe('Sériové testovanie', () => {
         await page.locator('.ant-select-selection-overflow').click();
         await page.getByText('Pre študentov').click();
         await page.getByRole('button', { name: 'Uložiť' }).click();
+        await page.waitForTimeout(5000);
         await page.waitForSelector('div.ant-notification-notice-message', { state: 'visible' });
         const locator = page.locator('div.ant-notification-notice-message').filter({hasText: 'Položka s rovnakým názvom už existuje. Musíte zadať iný názov.'});
         await expect(locator).toHaveText('Položka s rovnakým názvom už existuje. Musíte zadať iný názov.');
@@ -173,7 +178,6 @@ test.describe('Sériové testovanie', () => {
       try {
         attempts++;
         await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
-        await page.getByRole('searchbox').click();
         await page.getByRole('searchbox').fill('test1');
         await page.getByRole('button', { name: 'search' }).nth(2).click();
         await page.getByRole('button', { name: 'edit' }).click();
@@ -190,7 +194,7 @@ test.describe('Sériové testovanie', () => {
         await page.getByRole('button', { name: 'Save' }).click();
         await page.getByRole('button', { name: 'Uložiť' }).click();
         const locator = page.locator('div.ant-notification-notice-message:has-text("Úspešne uložené")');
-        await expect(locator).toHaveText('Úspešne uložené');
+        await expect(locator).toHaveText('Úspešne uložené', { timeout: 10000 });
         await page.waitForLoadState('networkidle');
         await page.getByRole('link', { name: 'Logo Fri Portál FRI' }).click();
         await page.getByText('test1').click();
@@ -232,7 +236,7 @@ test.describe('Sériové testovanie', () => {
         await page.getByText('Pre študentov').click();
         await page.getByRole('button', { name: 'Uložiť' }).click();
         const locator = page.locator('div:has-text("Úspešne uložené")');
-        await expect(locator.nth(5)).toHaveText('Úspešne uložené');
+        await expect(locator.nth(5)).toHaveText('Úspešne uložené', { timeout: 10000 });
         await page.waitForLoadState('networkidle');
         await page.getByRole('link', { name: 'Logo Fri Portál FRI' }).click();
         await page.waitForLoadState('networkidle');
@@ -311,7 +315,7 @@ test.describe('Sériové testovanie', () => {
         await page.getByText('Pre študentov').click();
         await page.getByRole('button', { name: 'Uložiť' }).click();
         const locator = page.locator('div:has-text("Úspešne uložené")');
-        await expect(locator.nth(5)).toHaveText('Úspešne uložené');
+        await expect(locator.nth(5)).toHaveText('Úspešne uložené', { timeout: 10000 });
         await page.waitForLoadState('networkidle');
         await page.getByRole('link', { name: 'Logo Fri Portál FRI' }).click();
         await page.getByRole('button', { name: 'EN' }).nth(1).click();
@@ -345,6 +349,8 @@ test.describe('Sériové testovanie', () => {
         await page.getByRole('row', { name: 'test1' }).getByRole('button').first().click();
         await page.getByLabel('Zobrazovať stále navrchu').click();
         await page.getByRole('button', { name: 'Uložiť' }).click();
+        const locator = page.locator('div:has-text("Úspešne uložené")');
+        await expect(locator.nth(5)).toHaveText('Úspešne uložené', { timeout: 10000 });
         await page.getByRole('link', { name: 'Logo Fri Portál FRI' }).click();
         await page.getByRole('button', { name: 'filter' }).click();
         await page.getByLabel('Pre študentov').check();
@@ -409,7 +415,7 @@ test.describe('Sériové testovanie', () => {
         await page.getByRole('button', { name: 'Áno' }).click();
         await page.waitForSelector('div.ant-notification-notice-message:has-text("Položka úspešne vymazaná")', { state: 'visible' });
         const locator1 = page.locator('div.ant-notification-notice-message:has-text("Položka úspešne vymazaná")');
-        await expect(locator1).toHaveText('Položka úspešne vymazaná');  
+        await expect(locator1).toHaveText('Položka úspešne vymazaná', { timeout: 10000 });  
         await page.waitForLoadState('networkidle');
         await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
         await page.getByRole('button', { name: 'close-circle' }).click();
@@ -421,7 +427,7 @@ test.describe('Sériové testovanie', () => {
         await page.getByRole('button', { name: 'Áno' }).click();
         await page.waitForSelector('div.ant-notification-notice-message:has-text("Položka úspešne vymazaná")', { state: 'visible' });
         const locator2 = page.locator('div.ant-notification-notice-message:has-text("Položka úspešne vymazaná")');
-        await expect(locator2).toHaveText('Položka úspešne vymazaná');
+        await expect(locator2).toHaveText('Položka úspešne vymazaná', { timeout: 10000 });
         await page.waitForLoadState('networkidle');
         await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
         await page.getByRole('button', { name: 'close-circle' }).click();
@@ -432,7 +438,7 @@ test.describe('Sériové testovanie', () => {
         await page.getByRole('button', { name: 'Áno' }).click();
         await page.waitForSelector('div.ant-notification-notice-message:has-text("Položka úspešne vymazaná")', { state: 'visible' });
         const locator3 = page.locator('div.ant-notification-notice-message:has-text("Položka úspešne vymazaná")');
-        await expect(locator3).toHaveText('Položka úspešne vymazaná');
+        await expect(locator3).toHaveText('Položka úspešne vymazaná', { timeout: 10000 });
         await page.waitForLoadState('networkidle');
         await page.getByLabel('Názov (anglicky)').getByRole('button', { name: 'search' }).click();
         await page.getByRole('button', { name: 'close-circle' }).click();
