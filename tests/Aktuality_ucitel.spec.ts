@@ -35,51 +35,50 @@ async function deleteExistingEntry(page, title) {
 }
 
 test('vytvorenie_SK_aktuality_ucitel', async ({ page }) => {
-    const title = 'test4';
-    let success = false;
-    attempts = 0;
-    while (!success && attempts < 2) { 
-      try {
-        attempts++;
-        await deleteExistingEntry(page, title);
-        await page.getByRole('button', { name: 'plus' }).click();
-        await page.getByRole('button', { name: 'Uložiť' }).click();
-        const locator1 = page.locator('div:has-text("Musíte vyplniť aspoň jednu jazykovú verziu.")');
-        await expect(locator1.nth(5)).toHaveText('Musíte vyplniť aspoň jednu jazykovú verziu.');
-        await page.locator('#title_sk').fill(title);
-        await page.getByRole('button', { name: 'Uložiť' }).click();
-        const locator2 = page.locator('div:has-text("Musíte vyplniť aspoň jednu jazykovú verziu.")');
-        await expect(locator2.nth(5)).toHaveText('Musíte vyplniť aspoň jednu jazykovú verziu.');
-        await page.waitForSelector('iframe[title="Rich Text Area"]');
-        const iframe = page.frameLocator('iframe[title="Rich Text Area"]').nth(0);
-        await iframe.locator('body').fill('skusobny test');
-        await page.getByRole('button', { name: 'Uložiť' }).click()
-        await expect(page.locator('#categories_help')).toHaveText('Pole je povinné');  
-        await page.locator('.ant-select-selection-overflow').click();
-        await page.getByText('Pre študentov').click();
-        await page.getByRole('button', { name: 'Uložiť' }).click();
-        const locator = page.locator('div:has-text("Úspešne uložené")');
-        await expect(locator.nth(5)).toHaveText('Úspešne uložené', { timeout: 10000 });
-        await page.waitForLoadState('networkidle');
-        await page.getByRole('link', { name: 'Logo Fri Portál FRI' }).click();
-        await page.getByText(title).click();
-        const locator3 = page.getByRole('heading', { name: title });
-        await expect(locator3).toHaveText(title);
-        await page.waitForLoadState('networkidle');
-        success = true;
-      } catch (error) {
-        console.error(`Test zlyhal na pokus č. ${attempts}`);
-        if (attempts >= 2) {
-         throw error; 
-        }
+  const title = 'test4';
+  let success = false;
+  attempts = 0;
+  while (!success && attempts < 2) { 
+    try {
+      attempts++;
+      await deleteExistingEntry(page, title);
+      await page.getByRole('button', { name: 'plus' }).click();
+      await page.getByRole('button', { name: 'Uložiť' }).click();
+      const locator1 = page.locator('div:has-text("Musíte vyplniť aspoň jednu jazykovú verziu.")');
+      await expect(locator1.nth(5)).toHaveText('Musíte vyplniť aspoň jednu jazykovú verziu.');
+      await page.locator('#title_sk').fill(title);
+      await page.getByRole('button', { name: 'Uložiť' }).click();
+      const locator2 = page.locator('div:has-text("Musíte vyplniť aspoň jednu jazykovú verziu.")');
+      await expect(locator2.nth(5)).toHaveText('Musíte vyplniť aspoň jednu jazykovú verziu.');
+      await page.waitForSelector('iframe[title="Rich Text Area"]');
+      const iframe = page.frameLocator('iframe[title="Rich Text Area"]').nth(0);
+      await iframe.locator('body').fill('skusobny test');
+      await page.getByRole('button', { name: 'Uložiť' }).click()
+      await expect(page.locator('#categories_help')).toHaveText('Pole je povinné');  
+      await page.locator('.ant-select-selection-overflow').click();
+      await page.getByText('Pre študentov').click();
+      await page.getByRole('button', { name: 'Uložiť' }).click();
+      const locator = page.locator('div:has-text("Úspešne uložené")');
+      await expect(locator.nth(5)).toHaveText('Úspešne uložené', { timeout: 10000 });
+      await page.waitForLoadState('networkidle');
+      await page.getByRole('link', { name: 'Logo Fri Portál FRI' }).click();
+      await page.getByText(title).click();
+      const locator3 = page.getByRole('heading', { name: title });
+      await expect(locator3).toHaveText(title);
+      await page.waitForLoadState('networkidle');
+      success = true;
+    } catch (error) {
+      console.error(`Test zlyhal na pokus č. ${attempts}`);
+      if (attempts >= 2) {
+        throw error; 
       }
     }
+  }
 });
 
 test('opätovne_vytvorenie_SK_aktuality_ucitel', async ({ page }) => {
   let success = false;
   attempts = 0;
-
   while (!success && attempts < 2) { 
     try {
       attempts++;
@@ -132,7 +131,6 @@ test('vytvorenie_EN_aktuality_ucitel', async ({ page }) => {
   const title = 'test5'; 
   let success = false;
   attempts = 0;
-
   while (!success && attempts < 2) { 
     try {
       attempts++;
@@ -179,7 +177,6 @@ test('vytvorenie_SK/EN_aktuality_ucitel', async ({ page }) => {
   const title = 'test6'; 
   let success = false;
   attempts = 0;
-
   while (!success && attempts < 2) { 
     try {
       attempts++;
@@ -259,7 +256,6 @@ test('zmena_text_obrazok_subor_ucitel', async ({ page }) => {
     } catch (error) {
       console.error(`Test zlyhal na pokus č. ${attempts}`);
       await page.goto('https://fresh.fri.uniza.sk/cms/news');
-      
       if (attempts >= 2) {
           throw error;
       }
@@ -270,7 +266,6 @@ test('zmena_text_obrazok_subor_ucitel', async ({ page }) => {
 test('mazanie_aktuality_ucitel', async ({ page }) => {
   let success = false;
   attempts = 0;
-
   while (!success && attempts < 2) {
     try {
       attempts++;

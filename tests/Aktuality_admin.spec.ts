@@ -248,7 +248,6 @@ test('vytvorenie_SK/EN_aktuality', async ({ page }) => {
   }
 });
 
-
 test('pamatanie_filtra', async ({ page }) => {
 let success = false;
 attempts = 0;
