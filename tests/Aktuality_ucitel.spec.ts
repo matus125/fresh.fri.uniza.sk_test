@@ -309,4 +309,5 @@ test('mazanie_aktuality_ucitel', async ({ page }) => {
       console.error(`Test zlyhal na pokus č. ${attempts}: ${error.message}`);
     }
   }
+  await page.close();
 });

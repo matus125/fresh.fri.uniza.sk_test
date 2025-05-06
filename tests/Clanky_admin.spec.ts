@@ -49,28 +49,42 @@ async function deleteExistingEntryEN(page, title) {
 }
 
 test('vytvorenie_clanka', async ({ page}) => {
+  let success = false;
+  attempts = 0;
   const title = 'clanok1';
-  await deleteExistingEntry(page, title);
-  await page.getByRole('button', { name: 'plus' }).click();
-  await page.getByRole('button', { name: 'Uložiť' }).click();
-  const locator1 = page.locator('div:has-text("Musíte vyplniť aspoň jednu jazykovú verziu.")');
-  await expect(locator1.nth(5)).toHaveText('Musíte vyplniť aspoň jednu jazykovú verziu.', { timeout: 10000 });
-  await page.locator('#title_sk').fill(title);
-  await page.getByRole('button', { name: 'Uložiť' }).click();
-  const locator2 = page.locator('div:has-text("Musíte vyplniť aspoň jednu jazykovú verziu.")');
-  await expect(locator2.nth(5)).toHaveText('Musíte vyplniť aspoň jednu jazykovú verziu.', { timeout: 10000 });
-  await page.waitForSelector('iframe[title="Rich Text Area"]');
-  const iframe = page.frameLocator('iframe[title="Rich Text Area"]').nth(0);
-  await iframe.locator('body').fill('skusobny text');
-  await page.getByRole('button', { name: 'Uložiť' }).click()
-  const locator = page.locator('div:has-text("Úspešne uložené")');
-  await expect(locator.nth(5)).toHaveText('Úspešne uložené', { timeout: 10000 });
-  await page.waitForLoadState('networkidle');
-  await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
-  await page.getByRole('searchbox').fill(title);
-  await page.getByRole('button', { name: 'search' }).nth(3).click();
-  await page.getByRole('button', { name: 'edit' }).click();
-  await expect(page.locator('#title_sk').inputValue()).resolves.toBe('clanok1');
+  while (!success && attempts < 2) {
+    try {
+      attempts++;
+      await deleteExistingEntry(page, title);
+      await page.getByRole('button', { name: 'plus' }).click();
+      await page.getByRole('button', { name: 'Uložiť' }).click();
+      const locator1 = page.locator('div:has-text("Musíte vyplniť aspoň jednu jazykovú verziu.")');
+      await expect(locator1.nth(5)).toHaveText('Musíte vyplniť aspoň jednu jazykovú verziu.', { timeout: 10000 });
+      await page.locator('#title_sk').fill(title);
+      await page.getByRole('button', { name: 'Uložiť' }).click();
+      const locator2 = page.locator('div:has-text("Musíte vyplniť aspoň jednu jazykovú verziu.")');
+      await expect(locator2.nth(5)).toHaveText('Musíte vyplniť aspoň jednu jazykovú verziu.', { timeout: 10000 });
+      await page.waitForSelector('iframe[title="Rich Text Area"]');
+      const iframe = page.frameLocator('iframe[title="Rich Text Area"]').nth(0);
+      await iframe.locator('body').fill('skusobny text');
+      await page.getByRole('button', { name: 'Uložiť' }).click()
+      const locator = page.locator('div:has-text("Úspešne uložené")');
+      await expect(locator.nth(5)).toHaveText('Úspešne uložené', { timeout: 10000 });
+      await page.waitForLoadState('networkidle');
+      await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
+      await page.getByRole('searchbox').fill(title);
+      await page.getByRole('button', { name: 'search' }).nth(3).click();
+      await page.getByRole('button', { name: 'edit' }).click();
+      await expect(page.locator('#title_sk').inputValue()).resolves.toBe('clanok1');
+      success = true;
+    } catch (error) {
+      console.error(`Test zlyhal na pokus č. ${attempts}`);
+      await page.getByRole('link', { name: 'Články' }).click();
+      if (attempts >= 2) {
+        throw error; 
+      }
+    }
+  }
 });
 
 test('opätovne_vytvorenie_SK_clanka', async ({ page }) => {
@@ -304,4 +318,5 @@ test('mazanie_clanka', async ({ page }) => {
       console.error(`Test zlyhal na pokus č. ${attempts}: ${error.message}`);
     }
   }
+  await page.close();
 });

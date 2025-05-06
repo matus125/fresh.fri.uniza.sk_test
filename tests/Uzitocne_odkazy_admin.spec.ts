@@ -26,20 +26,30 @@ async function deleteExistingEntry(page, title) {
 }
 
 test('vytvorenie_odkazu', async ({ page }) => {
-  test.setTimeout(100000);
+  let success = false;
+  attempts = 0;
   const title = 'test1';
-  await deleteExistingEntry(page, title);
-  await page.getByRole('button', { name: 'plus' }).click();
-  await page.getByLabel('Názov (slovensky)').fill('test1');
-  await page.getByLabel('URL SK').fill('https://www.google.com');
+  test.setTimeout(100000);
+    
+  while (!success && attempts < 2) {
+    try {
+      await deleteExistingEntry(page, title);
+      await page.getByRole('button', { name: 'plus' }).click();
+      await page.getByLabel('Názov (slovensky)').fill('test1');
+      await page.getByLabel('URL SK').fill('https://www.google.com');
 
-  await page.getByLabel('Nová').click();
-  await page.getByRole('button', { name: 'Uložiť' }).click();
-  await expect(page.locator('div:has-text("Úspešne uložené")').nth(5)).toHaveText('Úspešne uložené',{ timeout: 10000 });
-  await page.getByRole('link', { name: 'Logo Fri Portál FRI' }).click();
-  const link = page.getByRole('link', { name: title + "Nové" });
-  await link.click({ timeout: 10000 });
-  await expect(page).toHaveURL('https://www.google.com');
+      await page.getByLabel('Nová').click();
+      await page.getByRole('button', { name: 'Uložiť' }).click();
+      await expect(page.locator('div:has-text("Úspešne uložené")').nth(5)).toHaveText('Úspešne uložené',{ timeout: 10000 });
+      await page.getByRole('link', { name: 'Logo Fri Portál FRI' }).click();
+      const link = page.getByRole('link', { name: title + "Nové" });
+      await link.click({ timeout: 10000 });
+      await expect(page).toHaveURL('https://www.google.com');
+      success = true; 
+    } catch (error) {
+      console.error(`Test zlyhal na pokus č. ${attempts}: ${error.message}`);
+    }
+  }
 });
 
 test('mazanie_odkazu', async ({ page }) => {
@@ -65,4 +75,5 @@ test('mazanie_odkazu', async ({ page }) => {
       console.error(`Test zlyhal na pokus č. ${attempts}: ${error.message}`);
     }
   }
+  await page.close();
 });

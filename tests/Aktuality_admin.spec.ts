@@ -46,7 +46,6 @@ async function deleteExistingEntryEN(page, title) {
   }
 }
 
-
 test('vytvorenie_SK_aktuality', async ({ page }) => {
   const title = 'test1';
   let success = false;
