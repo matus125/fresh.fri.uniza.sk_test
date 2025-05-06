@@ -32,7 +32,7 @@ async function deleteExistingEntry(page, title) {
 async function deleteExistingEntryEN(page, title) {
   await page.getByRole('button', { name: 'Obsah' }).click();
   await page.getByRole('link', { name: 'Články' }).click();
-  await page.getByLabel('Názov EN').getByRole('button', { name: 'search' }).click();
+  await page.getByLabel('Názov (anglicky))').getByRole('button', { name: 'search' }).click();
   await page.getByRole('searchbox').click();
   await page.getByRole('searchbox').fill(title);
   await page.getByRole('button', { name: 'search' }).nth(3).click();
@@ -42,7 +42,7 @@ async function deleteExistingEntryEN(page, title) {
     await page.getByRole('button', { name: 'Áno' }).click();
     const locator2 = page.locator('div.ant-notification-notice-message:has-text("Položka úspešne vymazaná")');
     await expect(locator2).toHaveText('Položka úspešne vymazaná', { timeout: 10000 });
-    await page.getByLabel('Názov EN').getByRole('button', { name: 'search' }).click();
+    await page.getByLabel('Názov (anglicky))').getByRole('button', { name: 'search' }).click();
     await page.getByRole('button', { name: 'close-circle' }).click();
     
   }
@@ -105,9 +105,8 @@ test('opätovne_vytvorenie_SK_clanka', async ({ page }) => {
       const iframe = page.frameLocator('iframe[title="Rich Text Area"]').nth(0);
       await iframe.locator('body').fill('skusobny text');
       await page.getByRole('button', { name: 'Uložiť' }).click();
-      await page.waitForSelector('div.ant-notification-notice-message', { state: 'visible' });
-      const locator = page.locator('div.ant-notification-notice-message').filter({hasText: '422 - Položka s rovnakým názvom už existuje. Musíte zadať iný názov.'});
-      await expect(locator).toHaveText('422 - Položka s rovnakým názvom už existuje. Musíte zadať iný názov.', { timeout: 10000 });
+      const locator = page.locator('div:has-text("Položka s rovnakým názvom už existuje. Musíte zadať iný názov.")');
+      await expect(locator.nth(0)).toHaveText('Položka s rovnakým názvom už existuje. Musíte zadať iný názov.', { timeout: 10000 });
       await page.waitForLoadState('networkidle');
       success = true;
     } catch (error) {
@@ -143,7 +142,7 @@ test('vytvorenie_EN_clanka', async ({ page }) => {
       const locator = page.locator('div:has-text("Úspešne uložené")');
       await expect(locator.nth(5)).toHaveText('Úspešne uložené', { timeout: 10000 });
       await page.waitForLoadState('networkidle');
-      await page.getByLabel('Názov EN').getByRole('button', { name: 'search' }).click();
+      await page.getByLabel('Názov (anglicky)').getByRole('button', { name: 'search' }).click();
       await page.getByRole('searchbox').fill(title);
       await page.getByRole('button', { name: 'search' }).nth(3).click();
       await page.getByRole('button', { name: 'edit' }).click();
@@ -177,7 +176,7 @@ test('vytvorenie_SK/EN_clanka', async ({ page }) => {
       const locator = page.locator('div:has-text("Úspešne uložené")');
       await expect(locator.nth(5)).toHaveText('Úspešne uložené');
       await page.waitForLoadState('networkidle');
-      await page.getByLabel('Názov SK').getByRole('button', { name: 'search' }).click();
+      await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
       await page.getByRole('searchbox').fill(title);
       await page.getByRole('button', { name: 'search' }).nth(3).click();
       await page.getByRole('button', { name: 'edit' }).click();
@@ -255,8 +254,7 @@ test('vyhladanie_pod_inym_pouzivatelom', async ({ page }) => {
       await page.waitForTimeout(1000);
       await page.getByRole('link', { name: 'Články' }).click();
       await page.waitForLoadState('networkidle');
-      await page.getByLabel('Názov SK').getByRole('button', { name: 'search' }).click();
-      await page.getByRole('searchbox').click();
+      await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
       await page.getByRole('searchbox').fill('clanok1');
       await page.getByRole('button', { name: 'search' }).nth(3).click();
       await expect(page.locator('text=test11')).toHaveCount(0);
@@ -278,8 +276,7 @@ test('mazanie_clanka', async ({ page }) => {
   while (!success && attempts < 2) {
     try {
       attempts++;
-      await page.getByLabel('Názov SK').getByRole('button', { name: 'search' }).click();
-      await page.getByRole('searchbox').click();
+      await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
       await page.getByRole('searchbox').fill('clanok1');
       await page.getByRole('button', { name: 'search' }).nth(3).click();    
       await page.getByRole('button', { name: 'delete' }).click();
@@ -288,10 +285,9 @@ test('mazanie_clanka', async ({ page }) => {
       const locator1 = page.locator('div.ant-notification-notice-message:has-text("Položka úspešne vymazaná")');
       await expect(locator1).toHaveText('Položka úspešne vymazaná');  
       await page.waitForLoadState('networkidle');
-      await page.getByLabel('Názov SK').getByRole('button', { name: 'search' }).click();
+      await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
       await page.getByRole('button', { name: 'close-circle' }).click();
-      await page.getByLabel('Názov SK').getByRole('button', { name: 'search' }).click();
-      await page.getByRole('searchbox').click();
+      await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
       await page.getByRole('searchbox').fill('clanok3');
       await page.getByRole('button', { name: 'search' }).nth(3).click();    
       await page.getByRole('button', { name: 'delete' }).click();
@@ -300,9 +296,9 @@ test('mazanie_clanka', async ({ page }) => {
       const locator2 = page.locator('div.ant-notification-notice-message:has-text("Položka úspešne vymazaná")');
       await expect(locator2).toHaveText('Položka úspešne vymazaná');
       await page.waitForLoadState('networkidle');
-      await page.getByLabel('Názov SK').getByRole('button', { name: 'search' }).click();
+      await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
       await page.getByRole('button', { name: 'close-circle' }).click();
-      await page.getByLabel('Názov EN').getByRole('button', { name: 'search' }).click();
+      await page.getByLabel('Názov (anglicky)').getByRole('button', { name: 'search' }).click();
       await page.getByRole('searchbox').nth(1).fill('clanok2');
       await page.getByRole('searchbox').nth(1).press('Enter');
       await page.getByRole('button', { name: 'delete' }).click();
@@ -311,7 +307,7 @@ test('mazanie_clanka', async ({ page }) => {
       const locator3 = page.locator('div.ant-notification-notice-message:has-text("Položka úspešne vymazaná")');
       await expect(locator3).toHaveText('Položka úspešne vymazaná');
       await page.waitForLoadState('networkidle');
-      await page.getByLabel('Názov EN').getByRole('button', { name: 'search' }).click();
+      await page.getByLabel('Názov (anglicky)').getByRole('button', { name: 'search' }).click();
       await page.getByRole('button', { name: 'close-circle' }).click();
       success = true; 
     } catch (error) {

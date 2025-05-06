@@ -15,6 +15,7 @@ test.beforeEach(async ({ page }) => {
   const locator2 = page.getByText('Štefan Toth', { exact: false });
   await expect(locator2).toBeVisible();
   await page.getByRole('button', { name: 'Obsah' }).click();
+  await page.waitForTimeout(500);
   await page.getByRole('link', { name: 'Aktuality' }).click();
   await page.waitForLoadState('networkidle');
 });
@@ -117,8 +118,11 @@ test('vyhladanie_pod_inym_pouzivatelom_ucitel', async ({ page }) => {
   await page.getByRole('button', { name: 'more' }).click();
   await page.getByText('Späť k Patrik Hrkút').click();
   await page.waitForLoadState('networkidle');
-  await page.getByRole('link', { name: 'Aktuality' }).click();
+  const locator2 = page.getByText('Patrik Hrkút', { exact: false });
+  await expect(locator2).toBeVisible();
   await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(500);
+  await page.getByRole('link', { name: 'Aktuality' }).click();
   await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
   await page.getByRole('searchbox').click();
   await page.getByRole('searchbox').fill('test4');
@@ -182,11 +186,9 @@ test('vytvorenie_SK/EN_aktuality_ucitel', async ({ page }) => {
       attempts++;
       await deleteExistingEntry(page, title);
       await page.getByRole('button', { name: 'plus' }).click();
-      await page.locator('#title_sk').click();
       await page.locator('#title_sk').fill(title);
       const iframe1 = page.frameLocator('iframe[title="Rich Text Area"]').nth(0);
       await iframe1.locator('body').fill('skusobny test');
-      await page.locator('#title_en').click();
       await page.locator('#title_en').fill(title);
       await page.waitForSelector('iframe[title="Rich Text Area"]');
       const iframe = page.frameLocator('iframe[title="Rich Text Area"]').nth(1);
@@ -245,7 +247,7 @@ test('zmena_text_obrazok_subor_ucitel', async ({ page }) => {
       await expect(locator).toHaveText('Úspešne uložené', { timeout: 10000 });
       await page.waitForLoadState('networkidle');
       await page.getByRole('link', { name: 'Logo Fri Portál FRI' }).click();
-      await page.getByText('test1').click();
+      await page.getByText('test4').click();
       const locator2 = page.getByText('upraveny text');
       await expect(locator2).toHaveText('upraveny text testovaci_subor');
       await page.waitForLoadState('networkidle');

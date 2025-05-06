@@ -111,11 +111,8 @@ test('opätovne_vytvorenie_SK_aktuality', async ({ page }) => {
       await page.locator('.ant-select-selection-overflow').click();
       await page.getByText('Pre študentov').click();
       await page.getByRole('button', { name: 'Uložiť' }).click();
-      await page.waitForTimeout(5000);
-      await page.waitForSelector('div.ant-notification-notice-message', { state: 'visible' });
-      const locator = page.locator('div.ant-notification-notice-message')
-        .filter({hasText: 'Položka s rovnakým názvom už existuje. Musíte zadať iný názov.'});
-      await expect(locator).toHaveText('Položka s rovnakým názvom už existuje. Musíte zadať iný názov.');
+      const locator = page.locator('div:has-text("Položka s rovnakým názvom už existuje. Musíte zadať iný názov.")');
+      await expect(locator.nth(0)).toHaveText('Položka s rovnakým názvom už existuje. Musíte zadať iný názov.', { timeout: 10000 });
       await page.waitForLoadState('networkidle');
       success = true;
     } catch (error) {
@@ -142,9 +139,7 @@ test('vyhladanie_pod_inym_pouzivatelom', async ({ page }) => {
       await page.getByRole('button', { name: 'Prihlásiť' }).click();
       await page.waitForLoadState('networkidle');
       await page.getByRole('link', { name: 'Aktuality' }).click();
-      await page.waitForLoadState('networkidle');
       await page.getByLabel('Názov (slovensky)').getByRole('button', { name: 'search' }).click();
-      await page.getByRole('searchbox').click();
       await page.getByRole('searchbox').fill('test1');
       await page.getByRole('button', { name: 'search' }).nth(2).click();
       await page.reload();
