@@ -2,7 +2,7 @@ import { test, expect} from '@playwright/test';
 
   test('prihlasenie_admin', async ({ page, context }) => {
     await page.goto('https://fresh.fri.uniza.sk/');
- //   await page.getByRole('button', { name: 'Accept all' }).click();
+    await page.getByRole('button', { name: 'Accept all' }).click();
     await page.getByRole('button', { name: 'SK' }).nth(1).click();
     await page.getByRole('link', { name: 'user Prihlásenie' }).nth(1).click();
     await page.getByLabel('Prihlasovacie meno').fill('hrkut');

@@ -32,7 +32,7 @@ async function deleteExistingEntry(page, title) {
 async function deleteExistingEntryEN(page, title) {
   await page.getByRole('button', { name: 'Obsah' }).click();
   await page.getByRole('link', { name: 'Články' }).click();
-  await page.getByLabel('Názov (anglicky))').getByRole('button', { name: 'search' }).click();
+  await page.getByLabel('Názov (anglicky)').getByRole('button', { name: 'search' }).click();
   await page.getByRole('searchbox').click();
   await page.getByRole('searchbox').fill(title);
   await page.getByRole('button', { name: 'search' }).nth(3).click();
@@ -48,7 +48,7 @@ async function deleteExistingEntryEN(page, title) {
   }
 }
 
-test('vytvorenie_clanka', async ({ page}) => {
+test('vytvorenie_SK_clanka', async ({ page}) => {
   let success = false;
   attempts = 0;
   const title = 'clanok1';
@@ -106,7 +106,7 @@ test('opätovne_vytvorenie_SK_clanka', async ({ page }) => {
       await iframe.locator('body').fill('skusobny text');
       await page.getByRole('button', { name: 'Uložiť' }).click();
       const locator = page.locator('div:has-text("Položka s rovnakým názvom už existuje. Musíte zadať iný názov.")');
-      await expect(locator.nth(0)).toHaveText('Položka s rovnakým názvom už existuje. Musíte zadať iný názov.', { timeout: 10000 });
+      await expect(locator.nth(2)).toHaveText('Položka s rovnakým názvom už existuje. Musíte zadať iný názov.', { timeout: 10000 });
       await page.waitForLoadState('networkidle');
       success = true;
     } catch (error) {

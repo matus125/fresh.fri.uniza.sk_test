@@ -32,11 +32,12 @@ async function deleteExistingEntry(page, title) {
 test('vytvorenie_SK_udalosti', async ({ page }) => {
   let success = false;
   attempts = 0;
+  const title = 'udalost1';
 
   while (!success && attempts < 2) {
     try {
       attempts++;
-      const title = 'udalost1';
+      await deleteExistingEntry(page, title);
       const titleHelp = page.locator('#title_sk_help');
       const fromHelp = page.locator('#from_help');
       const successMsg = page.locator('div:has-text("Úspešne uložené")');
